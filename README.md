@@ -243,6 +243,29 @@ The API returns appropriate HTTP status codes and error messages:
 4. Add tests if applicable
 5. Submit a pull request
 
+## Future Scope
+
+**Integration with Insurance Providers
+Direct claim processing from the app (especially Ayushman Bharat & private insurers).
+Transparency in billing & reducing fraud.
+
+**Global Expansion with Multilingual Support
+Extend AI chatbot & services to more Indian languages and later to global regions.
+Help NRIs connect to Indian doctors for remote consultations.
+
+ **AI-driven Community Health Trends Dashboard
+Provide real-time disease outbreak mapping (like flu, dengue, COVID hotspots).
+Assist government & NGOs in planning preventive health camps.
+
+**Partnership with Pharmacies & Diagnostic Chains
+Build a single connected healthcare ecosystem where patients get consultations → prescriptions → tests → medicines → insurance, all inside Cureva.
+
+**Robotic Process Automation (RPA) in Hospitals
+Automate repetitive admin tasks like patient record updates, appointment scheduling, and insurance claim filing.
+
+**Integration with Digital Health ID (NDHM/ABHA)
+Seamless sync of Cureva records with the National Digital Health Mission database for universal healthcare access.
+
 ## UI/UX 
  Index page:
 <img width="1919" height="910" alt="Screenshot 2025-08-22 104639" src="https://github.com/user-attachments/assets/6c44d1b9-991e-44eb-8f2d-df036f1fcc2c" />
@@ -262,3 +285,4 @@ The API returns appropriate HTTP status codes and error messages:
 # Cureva 
 Techno Asha-Cureva - A healthcare platform that bridges tech with treatment and helps people to get easy access to medical facilities.
 >>>>>>> 178852a43feb78cfe7818ca921c90eb770351571
+[A Secure AI-powered Platform for Smart Patient-Doctor Interaction_compressed.pdf](https://github.com/user-attachments/files/21931227/A.Secure.AI-powered.Platform.for.Smart.Patient-Doctor.Interaction_compressed.pdf)
