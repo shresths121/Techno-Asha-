@@ -5,8 +5,11 @@
 Team : Techno Asha
 
 Member 1 : Shresth Sharma (Backend Developer)
+
 Member 2 : Sanyyam Doye (Frontend Developer)
+
 Member 3 : Aania Khan (Presenter)
+
 Member 4 : Harshit Aryan Singh (Presentation Designer)
 
 ## Problem Statement
