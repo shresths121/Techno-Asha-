@@ -15,7 +15,54 @@ Cureva- A healthcare platform which bridges tech with treatment and helps people
 
 ## Project Description
 
-A secure healthcare platform backend built with Node.js, Express, and MongoDB that connects patients with doctors through AI-powered symptom analysis and appointment management.
+Core Features
+
+**AI-driven Doctor Matching**
+Patients upload symptoms, test results, or prescriptions.
+AI analyzes the data and instantly matches them to the most relevant specialist nearby, avoiding wrong referrals.
+
+**Multi-language AI Assistance**
+Chatbot that understands local dialects & translates symptoms into medical terms.
+
+**Emergency SOS Button**
+One-tap alert that shares patient’s location + medical summary with the nearest hospital.
+Ensures faster emergency response in critical cases.
+
+**Blockchain-powered Medical Security**
+All reports, prescriptions, and histories are stored in tamper-proof encrypted blockchain records.
+Builds trust by ensuring data privacy and authenticity.
+
+**Government Scheme Integration**
+Updates patients about schemes like Ayushman Bharat Card and eligibility criteria.
+Provides real-time notifications on new government health benefits.
+
+**Remote Health Camp Notifications**
+Patients get pop-up alerts when free health camps are organized nearby.
+
+Helps rural and low-income communities access free medical services.
+
+**Awareness & Education**
+Curated YouTube health awareness videos embedded in the platform.
+Spreads preventive healthcare knowledge and lifestyle tips.
+
+**Pharmacy & Lab Integration**
+Patients can directly book lab tests and order medicines from within the platform.
+Saves time and ensures end-to-end healthcare service.
+
+⚙ Workflow
+Patient registers/login → uploads symptoms/tests.
+AI engine processes data → recommends verified doctors.
+Doctor reviews patient info → provides prescription/treatment digitally.
+Blockchain stores records securely → accessible anytime by patient & authorized doctors.
+Patient receives treatment & feedback loop updates doctor trust score.
+Emergency or awareness notifications (SOS, health camps, government schemes) keep patients engaged.
+
+🏥 Modules
+Patient Module – Registration, uploads, doctor suggestions, awareness updates, feedback.
+Doctor Module – Verified registration, view cases, give prescriptions, receive ratings.
+Hospital Module – Assign doctors, maintain centralized patient records, performance analytics.
+Trust & Security Module – Blockchain storage + doctor authenticity score.
+AI & Chatbot Module – Doctor matching, multilingual support, OCR for prescriptions.
 
 ## Features
 
@@ -197,11 +244,17 @@ The API returns appropriate HTTP status codes and error messages:
  Index page:
 <img width="1919" height="910" alt="Screenshot 2025-08-22 104639" src="https://github.com/user-attachments/assets/6c44d1b9-991e-44eb-8f2d-df036f1fcc2c" />
 
- 
+ Patient Login: 
+<img width="1917" height="907" alt="Screenshot 2025-08-22 104651" src="https://github.com/user-attachments/assets/456fe9c6-a83d-4b09-b431-72ebba2026c0" />
 
+ Patient Dashboard:
+<img width="1918" height="909" alt="Screenshot 2025-08-22 104719" src="https://github.com/user-attachments/assets/d2f2269c-7c9d-4eb0-b385-55e782c42f0e" />
 
- 
+ Doctor Login:
+<img width="1919" height="909" alt="Screenshot 2025-08-22 104750" src="https://github.com/user-attachments/assets/ae350e69-e85d-407e-bc00-71d83392b842" />
 
+ Doctor Dashboard:
+ <img width="1919" height="906" alt="Screenshot 2025-08-22 104824" src="https://github.com/user-attachments/assets/33477498-1ce0-48d9-bc50-0bee4c979eb2" />
 
 # Cureva 
 Techno Asha-Cureva - A healthcare platform that bridges tech with treatment and helps people to get easy access to medical facilities.
