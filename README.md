@@ -1,5 +1,19 @@
-<<<<<<< HEAD
-# MediTrust Backend
+# Cureva
+
+## Team Detail:
+
+Team : Techno Asha
+
+Member 1 : Shresth Sharma (Backend Developer)
+Member 2 : Sanyyam Doye (Frontend Developer)
+Member 3 : Aania Khan (Presenter)
+Member 4 : Harshit Aryan Singh (Presentation Designer)
+
+## Problem Statement
+
+Cureva- A healthcare platform which bridges tech with treatment and helps people to get easy access to medical facilities.
+
+## Project Description
 
 A secure healthcare platform backend built with Node.js, Express, and MongoDB that connects patients with doctors through AI-powered symptom analysis and appointment management.
 
@@ -179,14 +193,16 @@ The API returns appropriate HTTP status codes and error messages:
 4. Add tests if applicable
 5. Submit a pull request
 
-## License
+## UI/UX 
+ Index page:
+<img width="1919" height="910" alt="Screenshot 2025-08-22 104639" src="https://github.com/user-attachments/assets/6c44d1b9-991e-44eb-8f2d-df036f1fcc2c" />
 
-This project is licensed under the MIT License.
+ 
 
-## Support
 
-For support and questions, please open an issue in the repository.
-=======
+ 
+
+
 # Cureva 
 Techno Asha-Cureva - A healthcare platform that bridges tech with treatment and helps people to get easy access to medical facilities.
 >>>>>>> 178852a43feb78cfe7818ca921c90eb770351571
