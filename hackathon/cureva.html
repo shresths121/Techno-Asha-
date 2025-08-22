@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cureva</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #b2f7ef, #a6dcef, #7ebce6);
+      background-size: cover;
+    }
+
+    .logo-container img {
+      width: 1000px; /* adjust as needed */
+      height: auto;
+      animation: fadeIn 2s ease-in-out forwards, pulse 3s infinite ease-in-out;
+    }
+
+    /* Fade in animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Smooth breathing pulse */
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+  </style>
+</head>
+<body>
+  <div class="logo-container">
+    <!-- Replace logo.png with your transparent logo file -->
+    <img src="logo.png" alt="Cureva Logo">
+  </div>
+</body>
+</html>

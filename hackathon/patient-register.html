@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CUREVA - Patient Register</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html { height: 100%; font-family: Arial, sans-serif; }
+
+    /* Background Video */
+    .bg-video {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+    .overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.45);
+      z-index: 0;
+    }
+
+    /* Centered Card */
+    .container {
+      position: relative; z-index: 1;
+      height: 100vh;
+      display: flex; justify-content: center; align-items: center;
+    }
+    .register-box {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      padding: 35px 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+      text-align: center;
+      width: 380px;
+      color: white;
+      animation: fadeIn 1.2s ease;
+    }
+    .register-box h2 { margin-bottom: 20px; font-size: 28px; font-weight: bold; letter-spacing: 1px; }
+    .input-box { margin-bottom: 18px; text-align: left; }
+    .input-box label { display: block; font-size: 14px; margin-bottom: 6px; }
+    .input-box input, .input-box select {
+      width: 100%; padding: 12px 14px; border: none; border-radius: 10px;
+      outline: none; font-size: 15px;
+      background: rgba(255, 255, 255, 0.2); color: rgb(0, 0, 0);
+    }
+    .input-box input::placeholder { color: #ddd; }
+    .btn {
+      width: 100%; padding: 14px; border: none; border-radius: 25px;
+      background: linear-gradient(120deg, #ff758c, #ff7eb3);
+      color: white; font-size: 18px; font-weight: bold; cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+    .btn:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(255, 118, 150, 0.8); }
+    .extra-links { margin-top: 15px; font-size: 14px; }
+    .extra-links a { color: #fff; text-decoration: underline; margin: 0 5px; cursor: pointer; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+  <iframe src="cureva.html" class="bg-iframe"></iframe>
+
+  <style>
+    .bg-iframe {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      z-index: -1; /* keep it behind your content */
+    }
+  </style>
+  <div class="overlay"></div>
+
+  <!-- Emergency SOS Button - Always Visible -->
+  <div id="sosButton" style="
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    background: #ff4444;
+    border: 2px solid #fff;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(255, 68, 68, 0.4);
+    transition: all 0.3s ease;
+    animation: pulse 2s infinite;
+  " onclick="showEmergencyAlert()">
+    🚨 SOS 🚨
+  </div>
+
+  <style>
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    #sosButton:hover {
+      background: #ff0000;
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(255, 68, 68, 0.6);
+    }
+  </style>
+
+  <!-- Register Box -->
+  <div class="container">
+    <div class="register-box">
+      <h2>Patient Register</h2>
+      <form id="registerForm">
+        
+        <div class="input-box">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" placeholder="Enter your full name" required>
+        </div>
+
+        <div class="input-box">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="Enter your email" required>
+        </div>
+
+        <div class="input-box">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Create a password" required>
+        </div>
+
+        <div class="input-box">
+          <label for="age">Age</label>
+          <input type="number" id="age" min="0" placeholder="Enter your age" required>
+        </div>
+
+        <div class="input-box">
+          <label for="gender">Gender</label>
+          <select id="gender" required>
+            <option value="" disabled selected>Select your gender</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div id="msg" style="display: none; margin: 10px 0; padding: 10px; border-radius: 5px; text-align: center;"></div>
+
+        <button type="submit" class="btn">Register</button>
+
+        <div class="extra-links">
+          <p>Already have an account? <a href="patient-login.html">Login</a></p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Script to link backend -->
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const patientData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value,
+        age: document.getElementById('age').value,
+        gender: document.getElementById('gender').value
+      };
+
+      try {
+        const response = await fetch('http://localhost:5000/api/auth/patient/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(patientData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          const msgDiv = document.getElementById('msg');
+          msgDiv.textContent = result.message || 'Registration successful! Redirecting...';
+          msgDiv.style.color = "lightgreen";
+          msgDiv.style.display = "block";
+          
+          setTimeout(() => {
+            window.location.href = 'patient-login.html';
+          }, 1500);
+        } else {
+          const msgDiv = document.getElementById('msg');
+          msgDiv.textContent = result.message || 'Registration failed.';
+          msgDiv.style.color = "#ff6b6b";
+          msgDiv.style.display = "block";
+        }
+
+      } catch (error) {
+        console.error('Error:', error);
+        const msgDiv = document.getElementById('msg');
+        msgDiv.textContent = 'Server error. Try again later.';
+        msgDiv.style.color = "#ff6b6b";
+        msgDiv.style.display = "block";
+      }
+    });
+  </script>
+
+  <script>
+    // Emergency SOS Function
+    let sosClickCount = 0;
+    let sosClickTimer = null;
+
+    function showEmergencyAlert() {
+      sosClickCount++;
+      
+      // Clear previous timer
+      if (sosClickTimer) {
+        clearTimeout(sosClickTimer);
+      }
+      
+      // Set timer to reset click count after 3 seconds
+      sosClickTimer = setTimeout(() => {
+        sosClickCount = 0;
+      }, 3000);
+      
+      // Check if 5 clicks reached
+      if (sosClickCount >= 5) {
+        // Reset click count
+        sosClickCount = 0;
+        if (sosClickTimer) {
+          clearTimeout(sosClickTimer);
+        }
+        
+        // Trigger emergency immediately
+        triggerEmergency();
+      }
+      // No intermediate alerts - just count clicks silently
+    }
+
+    function triggerEmergency() {
+      // Direct emergency trigger - no description needed
+             alert('🚨 EMERGENCY SOS TRIGGERED! 🚨\n\nYour emergency has been reported.\n\nNearby hospitals have been notified and will respond as soon as possible.\n\nStay calm and follow emergency personnel instructions.');
+      
+      // Here you could also send the emergency to a backend service
+      console.log('Emergency SOS triggered - Hospitals notified immediately');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CUREVA - Patient Login</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html { height: 100%; font-family: Arial, sans-serif; }
+
+    /* Background Video */
+    .bg-video {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; z-index: -1;
+    }
+    .overlay {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4); z-index: 0;
+    }
+
+    /* Centered Card */
+    .container {
+      position: relative; z-index: 1;
+      height: 100vh; display: flex;
+      justify-content: center; align-items: center;
+    }
+    .login-box {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      padding: 40px 35px;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+      text-align: center; width: 350px;
+      color: white; animation: fadeIn 1.2s ease;
+    }
+    .login-box h2 { margin-bottom: 25px; font-size: 28px; font-weight: bold; letter-spacing: 1px; }
+    .input-box { margin-bottom: 20px; text-align: left; }
+    .input-box label { display: block; font-size: 14px; margin-bottom: 6px; }
+    .input-box input {
+      width: 100%; padding: 12px 14px; border: none;
+      border-radius: 10px; outline: none; font-size: 15px;
+      background: rgba(255, 255, 255, 0.2); color: white;
+    }
+    .input-box input::placeholder { color: #ddd; }
+    .btn {
+      width: 100%; padding: 14px; border: none;
+      border-radius: 25px; background: linear-gradient(120deg, #ff758c, #ff7eb3);
+      color: white; font-size: 18px; font-weight: bold;
+      cursor: pointer; transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+    .btn:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(255, 118, 150, 0.8); }
+    .extra-links { margin-top: 15px; font-size: 14px; }
+    .extra-links a { color: #fff; text-decoration: underline; margin: 0 5px; cursor: pointer; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+  <iframe src="cureva.html" class="bg-iframe"></iframe>
+
+  <style>
+    .bg-iframe {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      z-index: -1; /* keep it behind your content */
+    }
+  </style>
+  <div class="overlay"></div>
+
+  <!-- Emergency SOS Button - Always Visible -->
+  <div id="sosButton" style="
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    background: #ff4444;
+    border: 2px solid #fff;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(255, 68, 68, 0.4);
+    transition: all 0.3s ease;
+    animation: pulse 2s infinite;
+  " onclick="showEmergencyAlert()">
+    🚨 SOS 🚨
+  </div>
+
+  <style>
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    #sosButton:hover {
+      background: #ff0000;
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(255, 68, 68, 0.6);
+    }
+  </style>
+
+  <!-- Login Box -->
+  <div class="container">
+    <div class="login-box">
+      <h2>Patient Login</h2>
+      <form onsubmit="return loginPatient(event)">
+        <div class="input-box">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="Enter your email" required>
+        </div>
+        <div class="input-box">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter your password" required>
+        </div>
+        <div id="msg" style="display: none; margin: 10px 0; padding: 10px; border-radius: 5px; text-align: center;"></div>
+        <button type="submit" class="btn">Login</button>
+        <div class="extra-links">
+          <a href="patient-register.html">Register</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    async function loginPatient(event) {
+      event.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const response = await fetch("http://localhost:5000/api/auth/patient/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Show success message
+          const msgDiv = document.getElementById('msg');
+          msgDiv.textContent = "Login successful! Redirecting...";
+          msgDiv.style.color = "lightgreen";
+          msgDiv.style.display = "block";
+          
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("patient", JSON.stringify(data.user));
+          
+          // Redirect after a short delay
+          setTimeout(() => {
+            window.location.href = "patient-dashboard.html";
+          }, 1500);
+        } else {
+          const msgDiv = document.getElementById('msg');
+          msgDiv.textContent = data.message || "Login failed. Please try again.";
+          msgDiv.style.color = "#ff6b6b";
+          msgDiv.style.display = "block";
+        }
+      } catch (err) {
+        console.error(err);
+        const msgDiv = document.getElementById('msg');
+        msgDiv.textContent = "Server error. Please try again later.";
+        msgDiv.style.color = "#ff6b6b";
+        msgDiv.style.display = "block";
+      }
+    }
+  </script>
+
+  <script>
+    // Emergency SOS Function
+    let sosClickCount = 0;
+    let sosClickTimer = null;
+
+    function showEmergencyAlert() {
+      sosClickCount++;
+      
+      // Clear previous timer
+      if (sosClickTimer) {
+        clearTimeout(sosClickTimer);
+      }
+      
+      // Set timer to reset click count after 3 seconds
+      sosClickTimer = setTimeout(() => {
+        sosClickCount = 0;
+      }, 3000);
+      
+      // Check if 5 clicks reached
+      if (sosClickCount >= 5) {
+        // Reset click count
+        sosClickCount = 0;
+        if (sosClickTimer) {
+          clearTimeout(sosClickTimer);
+        }
+        
+        // Trigger emergency immediately
+        triggerEmergency();
+      }
+      // No intermediate alerts - just count clicks silently
+    }
+
+    function triggerEmergency() {
+      // Direct emergency trigger - no description needed
+             alert('🚨 EMERGENCY SOS TRIGGERED! 🚨\n\nYour emergency has been reported.\n\nNearby hospitals have been notified and will respond as soon as possible.\n\nStay calm and follow emergency personnel instructions.');
+      
+      // Here you could also send the emergency to a backend service
+      console.log('Emergency SOS triggered - Hospitals notified immediately');
+    }
+  </script>
+</body>
+</html>

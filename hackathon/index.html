@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CUREVA - Index</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    /* Background Video */
+    .bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    /* Lighter overlay for readability */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.2);
+      z-index: 0;
+    }
+
+    /* Content with grid */
+    .content {
+      position: relative;
+      z-index: 1;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      padding-bottom: 80px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px;
+      align-items: center;
+    }
+
+    .btn {
+      background: transparent;
+      border: 2px solid white;
+      padding: 20px 50px;
+      font-size: 24px;
+      font-weight: 600;
+      color: white;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      letter-spacing: 1px;
+      min-width: 250px;
+      text-align: center;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn:hover {
+      background: white;
+      color: black;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <iframe src="cureva.html" class="bg-iframe"></iframe>
+
+  <style>
+    .bg-iframe {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      z-index: -1; /* keep it behind your content */
+    }
+  </style>
+  
+  <div class="overlay"></div>
+
+  <!-- Buttons in grid -->
+  <div class="content">
+    <div class="grid">
+      <a href="patient-login.html" class="btn">Patient</a>
+      <a href="hospital-login.html" class="btn">Hospital/Clinic</a>
+    </div>
+  </div>
+
+  <!-- Emergency SOS Button - Top-left, small -->
+  <div id="sosButton" style="
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 10;
+    background: #ff4444;
+    border: 2px solid #fff;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 8px 14px;
+    border-radius: 22px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(255, 68, 68, 0.4);
+    transition: all 0.3s ease;
+    animation: pulse 2s infinite;
+  " onclick="showEmergencyAlert()">
+    🚨 SOS 🚨
+  </div>
+
+  <style>
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    #sosButton:hover {
+      background: #ff0000;
+      transform: scale(1.07);
+    }
+  </style>
+
+  <script>
+    // Emergency SOS: 5-click trigger within 3 seconds
+    let sosClickCount = 0;
+    let sosClickTimer = null;
+    function showEmergencyAlert() {
+      sosClickCount++;
+      if (sosClickTimer) clearTimeout(sosClickTimer);
+      sosClickTimer = setTimeout(() => { sosClickCount = 0; }, 3000);
+      if (sosClickCount >= 5) {
+        sosClickCount = 0;
+        if (sosClickTimer) clearTimeout(sosClickTimer);
+        triggerEmergency();
+      }
+    }
+    function triggerEmergency() {
+      console.log('Emergency SOS triggered from index - hospitals notified');
+      // Optionally integrate backend call here
+    }
+  </script>
+
+</body>
+</html>

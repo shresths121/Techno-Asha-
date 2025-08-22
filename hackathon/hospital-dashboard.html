@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CUREVA • Hospital Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html { height: 100%; font-family: Arial, sans-serif; overflow: hidden; }
+
+    /* Background Video */
+    .bg-video {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    /* Overlay */
+    .overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.2);
+      z-index: 0;
+    }
+
+    /* App container */
+    .app {
+      position: relative;
+      z-index: 1;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 40px;
+      color: white;
+    }
+
+    /* Topbar */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.1);
+      padding: 15px 20px;
+      border-radius: 15px;
+      backdrop-filter: blur(6px);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .brand h1 { font-size: 20px; font-weight: bold; }
+    .nav { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tab {
+      background: transparent;
+      border: 2px solid white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      color: white;
+      transition: 0.3s;
+    }
+    .tab.active, .tab:hover { background: white; color: black; }
+
+    /* Cards */
+    .card {
+      background: rgba(255,255,255,0.15);
+      padding: 20px;
+      border-radius: 20px;
+      margin: 20px 0;
+      backdrop-filter: blur(6px);
+    }
+    h2, h3 { margin-bottom: 10px; }
+    p, label { color: #f0f0f0; }
+
+    /* Buttons */
+    .btn {
+      background: transparent;
+      border: 2px solid white;
+      padding: 8px 20px;
+      font-size: 15px;
+      color: white;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 5px;
+    }
+    .btn:hover { background: white; color: black; transform: scale(1.05); }
+    .btn.success { border-color: #4CAF50; color: #4CAF50; }
+    .btn.danger { border-color: #f44336; color: #f44336; }
+    .btn.warning { border-color: #ff9800; color: #ff9800; }
+
+    /* Inputs */
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0;
+      border-radius: 12px;
+      border: none;
+      outline: none;
+    }
+
+    /* Sections */
+    section { display: none; }
+    section.active { display: block; }
+
+    /* Toast notifications */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 10px;
+      z-index: 1000;
+      display: none;
+    }
+
+    /* Doctor/Hospital items */
+    .item {
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    /* Status badges */
+    .status {
+      padding: 4px 12px;
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .status.active { background: #4CAF50; color: white; }
+    .status.inactive { background: #f44336; color: white; }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #ddd;
+    }
+
+    /* Modal styles */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1001;
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: rgba(255,255,255,0.95);
+      color: black;
+      padding: 30px;
+      border-radius: 15px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+         /* Doctor management section styling */
+     #doctors .card,
+     #doctors .modal-content,
+     #doctors label,
+     #doctors input,
+     #doctors select,
+     #doctors textarea,
+     #doctors h2,
+     #doctors h3,
+     #doctors p {
+       color: black !important;
+     }
+
+     #doctors .item {
+       color: black;
+       background: rgba(255,255,255,0.9);
+     }
+
+     /* Additional doctor management styling */
+     #doctors .btn {
+       color: white;
+     }
+     
+     #doctors .status {
+       color: white;
+     }
+     
+     #doctors .loading {
+       color: black;
+     }
+
+     /* Ensure all modal text is black */
+     .modal-content h3,
+     .modal-content label,
+     .modal-content input,
+     .modal-content select,
+     .modal-content textarea,
+     .modal-content button {
+       color: black !important;
+     }
+
+     /* Specific styling for doctor management modals */
+     #addDoctorModal .modal-content,
+     #editDoctorModal .modal-content {
+       color: black !important;
+     }
+
+     #addDoctorModal .modal-content *,
+     #editDoctorModal .modal-content * {
+       color: black !important;
+     }
+
+     /* Override any white text in modals */
+     .modal-content {
+       color: black !important;
+     }
+
+    .close {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+    }
+
+    .close:hover {
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <iframe src="cureva.html" class="bg-iframe"></iframe>
+
+  <style>
+    .bg-iframe {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      z-index: -1;
+    }
+  </style>
+  <div class="overlay"></div>
+
+  <!-- Emergency SOS Button - Always Visible -->
+  <div id="sosButton" style="
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    background: #ff4444;
+    border: 2px solid #fff;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(255, 68, 68, 0.4);
+    transition: all 0.3s ease;
+    animation: pulse 2s infinite;
+  " onclick="showEmergencyAlert()">
+    🚨 SOS 🚨
+  </div>
+
+  <style>
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    #sosButton:hover {
+      background: #ff0000;
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(255, 68, 68, 0.6);
+    }
+  </style>
+
+  <!-- Toast notifications -->
+  <div id="toast" class="toast"></div>
+
+  <div class="app">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="brand"><h1>CUREVA • Hospital</h1></div>
+      <div class="nav">
+        <button class="tab active" data-tab="home">Home</button>
+        <button class="tab" data-tab="profile">Hospital Profile</button>
+        <button class="tab" data-tab="doctors">Manage Doctors</button>
+        <button class="tab" data-tab="emergencies">Emergency Requests</button>
+        <button class="tab" data-tab="about">About Us</button>
+        <button class="btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <!-- Sections -->
+    <section id="home" class="active">
+      <div class="card">
+        <h2>Welcome, <span id="hospitalName">Hospital</span>!</h2>
+        <p>Manage your hospital profile, doctors, and emergency requests.</p>
+      </div>
+      <div class="card">
+        <h3>Quick Stats</h3>
+        <div id="stats">
+          <p>Loading statistics...</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="profile">
+      <div class="card">
+        <h2>Hospital Profile</h2>
+        <div id="profileLoading" class="loading">Loading profile...</div>
+        <div id="profileForm" style="display: none;">
+          <label>Hospital Name</label>
+          <input id="profileName" placeholder="Hospital name">
+          <label>Address</label>
+          <input id="profileAddress" placeholder="Hospital address">
+          <label>City</label>
+          <input id="profileCity" placeholder="City">
+          <label>State</label>
+          <input id="profileState" placeholder="State">
+          <label>Phone</label>
+          <input id="profilePhone" placeholder="Phone number">
+          <label>Emergency Phone</label>
+          <input id="profileEmergencyPhone" placeholder="Emergency phone">
+          <button class="btn" onclick="updateProfile()">Save Changes</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="doctors">
+      <div class="card">
+        <h2>Manage Doctors</h2>
+        <button class="btn success" onclick="openAddDoctorModal()">Add New Doctor</button>
+        <div id="doctorsLoading" class="loading">Loading doctors...</div>
+        <div id="doctorsList"></div>
+      </div>
+    </section>
+
+    <section id="emergencies">
+      <div class="card">
+        <h2>Emergency Requests</h2>
+        <div id="emergenciesLoading" class="loading">Loading emergency requests...</div>
+        <div id="emergenciesList"></div>
+      </div>
+    </section>
+
+    <section id="about">
+      <div class="card">
+        <h2>About Cureva</h2>
+        <p>Bridging Tech With Treatment. At Cureva, we believe that healthcare should be accessible, secure, and trustworthy for everyone.</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- Add Doctor Modal -->
+  <div id="addDoctorModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeAddDoctorModal()">&times;</span>
+      <h3>Add New Doctor</h3>
+      <form id="addDoctorForm">
+        <label>Doctor Name *</label>
+        <input type="text" id="doctorName" required>
+        
+        <label>Email *</label>
+        <input type="email" id="doctorEmail" required>
+        
+        <label>Phone</label>
+        <input type="tel" id="doctorPhone">
+        
+                 <label>Specialty *</label>
+         <select id="doctorSpecialty" required>
+           <option value="">Select Specialty</option>
+           <option value="Cardiologist">Cardiologist</option>
+           <option value="General Physician">General Physician</option>
+           <option value="Dermatologist">Dermatologist</option>
+           <option value="Dentist">Dentist</option>
+           <option value="Ophthalmologist">Ophthalmologist</option>
+           <option value="Orthopedic">Orthopedic</option>
+         </select>
+        
+        <label>Experience (years)</label>
+        <input type="number" id="doctorExperience" min="0" max="50">
+        
+        <label>Qualifications</label>
+        <textarea id="doctorQualifications" placeholder="MBBS, MD, etc."></textarea>
+        
+        <div style="margin-top: 20px; text-align: right;">
+          <button type="button" class="btn" onclick="closeAddDoctorModal()">Cancel</button>
+          <button type="submit" class="btn success">Add Doctor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Doctor Modal -->
+  <div id="editDoctorModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeEditDoctorModal()">&times;</span>
+      <h3>Edit Doctor</h3>
+      <form id="editDoctorForm">
+        <input type="hidden" id="editDoctorId">
+        <label>Doctor Name *</label>
+        <input type="text" id="editDoctorName" required>
+        
+        <label>Phone</label>
+        <input type="tel" id="editDoctorPhone">
+        
+                 <label>Specialty *</label>
+         <select id="editDoctorSpecialty" required>
+           <option value="">Select Specialty</option>
+           <option value="Cardiologist">Cardiologist</option>
+           <option value="General Physician">General Physician</option>
+           <option value="Dermatologist">Dermatologist</option>
+           <option value="Dentist">Dentist</option>
+           <option value="Ophthalmologist">Ophthalmologist</option>
+           <option value="Orthopedic">Orthopedic</option>
+         </select>
+        
+        <label>Experience (years)</label>
+        <input type="number" id="editDoctorExperience" min="0" max="50">
+        
+        <label>Qualifications</label>
+        <textarea id="editDoctorQualifications" placeholder="MBBS, MD, etc."></textarea>
+        
+        <label>Status</label>
+        <select id="editDoctorStatus">
+          <option value="true">Active</option>
+          <option value="false">Inactive</option>
+        </select>
+        
+        <div style="margin-top: 20px; text-align: right;">
+          <button type="button" class="btn" onclick="closeEditDoctorModal()">Cancel</button>
+          <button type="submit" class="btn success">Update Doctor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Global variables
+    let hospitalData = null;
+    let doctors = [];
+
+    // Check authentication on page load
+    window.onload = function() {
+      checkAuth();
+      loadProfile();
+      loadDoctors();
+      updateStats();
+    };
+
+    // Authentication check
+    function checkAuth() {
+      const hospital = JSON.parse(localStorage.getItem('hospital') || '{}');
+      if (!hospital._id) {
+        window.location.href = 'hospital-login.html';
+        return;
+      }
+      
+      if (hospital.name) {
+        document.getElementById('hospitalName').textContent = hospital.name;
+      }
+    }
+
+    // Show toast notification
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.style.display = 'block';
+      toast.style.background = type === 'error' ? 'rgba(255,0,0,0.8)' : 'rgba(0,0,0,0.8)';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3000);
+    }
+
+    // Load hospital profile
+    async function loadProfile() {
+      try {
+        const hospital = JSON.parse(localStorage.getItem('hospital') || '{}');
+        hospitalData = hospital;
+        
+        document.getElementById('profileLoading').style.display = 'none';
+        document.getElementById('profileForm').style.display = 'block';
+        
+        document.getElementById('profileName').value = hospital.name || '';
+        document.getElementById('profileAddress').value = hospital.address || '';
+        document.getElementById('profileCity').value = hospital.city || '';
+        document.getElementById('profileState').value = hospital.state || '';
+        document.getElementById('profilePhone').value = hospital.phone || '';
+        document.getElementById('profileEmergencyPhone').value = hospital.emergencyPhone || '';
+      } catch (error) {
+        showToast('Error loading profile', 'error');
+      }
+    }
+
+    // Update profile
+    async function updateProfile() {
+      const name = document.getElementById('profileName').value;
+      const address = document.getElementById('profileAddress').value;
+      const city = document.getElementById('profileCity').value;
+      const state = document.getElementById('profileState').value;
+      const phone = document.getElementById('profilePhone').value;
+      const emergencyPhone = document.getElementById('profileEmergencyPhone').value;
+      
+      try {
+        const response = await fetch('http://localhost:5000/api/hospitals/me/profile', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name, address, city, state, phone, emergencyPhone
+          })
+        });
+        
+        if (response.ok) {
+          showToast('Profile updated successfully');
+          loadProfile();
+        } else {
+          const data = await response.json();
+          showToast(data.error?.message || 'Failed to update profile', 'error');
+        }
+      } catch (error) {
+        showToast('Error updating profile', 'error');
+      }
+    }
+
+         // Load doctors
+     async function loadDoctors() {
+       try {
+         const hospital = JSON.parse(localStorage.getItem('hospital') || '{}');
+         const response = await fetch(`http://localhost:5000/api/hospital-doctors/hospital/${hospital._id}`);
+         
+         if (response.ok) {
+           const data = await response.json();
+           doctors = data.data.doctors;
+           displayDoctors();
+         } else {
+           showToast('Failed to load doctors', 'error');
+         }
+       } catch (error) {
+         showToast('Error loading doctors', 'error');
+       }
+     }
+
+    // Display doctors
+    function displayDoctors() {
+      const container = document.getElementById('doctorsList');
+      const loading = document.getElementById('doctorsLoading');
+      
+      loading.style.display = 'none';
+      
+      if (doctors.length === 0) {
+        container.innerHTML = '<p>No doctors added yet.</p>';
+      } else {
+        container.innerHTML = doctors.map(doctor => `
+          <div class="item">
+            <div>
+              <strong>${doctor.name}</strong><br>
+              <small>${doctor.specialty} • ${doctor.experience || 0} years experience</small>
+              ${doctor.qualifications ? `<br><small>${doctor.qualifications}</small>` : ''}
+              <br><span class="status ${doctor.isActive ? 'active' : 'inactive'}">${doctor.isActive ? 'Active' : 'Inactive'}</span>
+            </div>
+            <div>
+              <button class="btn" onclick="editDoctor('${doctor._id}')">Edit</button>
+              <button class="btn danger" onclick="removeDoctor('${doctor._id}')">Remove</button>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Open add doctor modal
+    function openAddDoctorModal() {
+      document.getElementById('addDoctorModal').style.display = 'flex';
+      document.getElementById('addDoctorForm').reset();
+    }
+
+    // Close add doctor modal
+    function closeAddDoctorModal() {
+      document.getElementById('addDoctorModal').style.display = 'none';
+    }
+
+         // Add doctor form submission
+     document.getElementById('addDoctorForm').addEventListener('submit', async function(e) {
+       e.preventDefault();
+       
+       const hospital = JSON.parse(localStorage.getItem('hospital') || '{}');
+       const formData = {
+         hospitalId: hospital._id,
+         name: document.getElementById('doctorName').value,
+         email: document.getElementById('doctorEmail').value,
+         phone: document.getElementById('doctorPhone').value,
+         specialty: document.getElementById('doctorSpecialty').value,
+         experience: parseInt(document.getElementById('doctorExperience').value) || 0,
+         qualifications: document.getElementById('doctorQualifications').value,
+         city: hospital.city,
+         state: hospital.state,
+         address: hospital.address
+       };
+       
+       try {
+         const response = await fetch('http://localhost:5000/api/hospital-doctors', {
+           method: 'POST',
+           headers: {
+             'Content-Type': 'application/json'
+           },
+           body: JSON.stringify(formData)
+         });
+         
+         if (response.ok) {
+           showToast('Doctor added successfully');
+           closeAddDoctorModal();
+           loadDoctors();
+         } else {
+           const data = await response.json();
+           showToast(data.error?.message || 'Failed to add doctor', 'error');
+         }
+       } catch (error) {
+         showToast('Error adding doctor', 'error');
+       }
+     });
+
+    // Edit doctor
+    function editDoctor(doctorId) {
+      const doctor = doctors.find(d => d._id === doctorId);
+      if (!doctor) return;
+      
+      document.getElementById('editDoctorId').value = doctor._id;
+      document.getElementById('editDoctorName').value = doctor.name;
+      document.getElementById('editDoctorPhone').value = doctor.phone || '';
+      document.getElementById('editDoctorSpecialty').value = doctor.specialty;
+      document.getElementById('editDoctorExperience').value = doctor.experience || '';
+      document.getElementById('editDoctorQualifications').value = doctor.qualifications || '';
+      document.getElementById('editDoctorStatus').value = doctor.isActive.toString();
+      
+      document.getElementById('editDoctorModal').style.display = 'flex';
+    }
+
+    // Close edit doctor modal
+    function closeEditDoctorModal() {
+      document.getElementById('editDoctorModal').style.display = 'none';
+    }
+
+         // Edit doctor form submission
+     document.getElementById('editDoctorForm').addEventListener('submit', async function(e) {
+       e.preventDefault();
+       
+       const doctorId = document.getElementById('editDoctorId').value;
+       const formData = {
+         name: document.getElementById('editDoctorName').value,
+         phone: document.getElementById('editDoctorPhone').value,
+         specialty: document.getElementById('editDoctorSpecialty').value,
+         experience: parseInt(document.getElementById('editDoctorExperience').value) || 0,
+         qualifications: document.getElementById('editDoctorQualifications').value,
+         isActive: document.getElementById('editDoctorStatus').value === 'true'
+       };
+       
+       try {
+         const response = await fetch(`http://localhost:5000/api/hospital-doctors/${doctorId}`, {
+           method: 'PATCH',
+           headers: {
+             'Content-Type': 'application/json'
+           },
+           body: JSON.stringify(formData)
+         });
+         
+         if (response.ok) {
+           showToast('Doctor updated successfully');
+           closeEditDoctorModal();
+           loadDoctors();
+         } else {
+           const data = await response.json();
+           showToast(data.error?.message || 'Failed to update doctor', 'error');
+         }
+       } catch (error) {
+         showToast('Error updating doctor', 'error');
+       }
+     });
+
+         // Remove doctor
+     async function removeDoctor(doctorId) {
+       if (!confirm('Are you sure you want to remove this doctor?')) {
+         return;
+       }
+       
+       try {
+         const response = await fetch(`http://localhost:5000/api/hospital-doctors/${doctorId}`, {
+           method: 'DELETE'
+         });
+         
+         if (response.ok) {
+           showToast('Doctor removed successfully');
+           loadDoctors();
+         } else {
+           const data = await response.json();
+           showToast(data.error?.message || 'Failed to remove doctor', 'error');
+         }
+       } catch (error) {
+         showToast('Error removing doctor', 'error');
+       }
+     }
+
+    // Update stats
+    function updateStats() {
+      const stats = document.getElementById('stats');
+      if (hospitalData) {
+        const totalDoctors = doctors.length;
+        const activeDoctors = doctors.filter(d => d.isActive).length;
+        
+        stats.innerHTML = `
+          <p><strong>Total Doctors:</strong> ${totalDoctors}</p>
+          <p><strong>Active Doctors:</strong> ${activeDoctors}</p>
+          <p><strong>Hospital Location:</strong> ${hospitalData.city}, ${hospitalData.state}</p>
+        `;
+      }
+    }
+
+    // Logout
+    function logout() {
+      localStorage.removeItem('hospital');
+      window.location.href = 'hospital-login.html';
+    }
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+  </script>
+
+  <script>
+    // Emergency SOS Function
+    let sosClickCount = 0;
+    let sosClickTimer = null;
+
+    function showEmergencyAlert() {
+      sosClickCount++;
+      
+      // Clear previous timer
+      if (sosClickTimer) {
+        clearTimeout(sosClickTimer);
+      }
+      
+      // Set timer to reset click count after 3 seconds
+      sosClickTimer = setTimeout(() => {
+        sosClickCount = 0;
+      }, 3000);
+      
+      // Check if 5 clicks reached
+      if (sosClickCount >= 5) {
+        // Reset click count
+        sosClickCount = 0;
+        if (sosClickTimer) {
+          clearTimeout(sosClickTimer);
+        }
+        
+        // Trigger emergency immediately
+        triggerEmergency();
+      }
+      // No intermediate alerts - just count clicks silently
+    }
+
+    function triggerEmergency() {
+      // Direct emergency trigger - no description needed
+      // Here you could also send the emergency to a backend service
+      console.log('Emergency SOS triggered - Hospitals notified immediately');
+      if (typeof showToast === 'function') {
+        showToast('🚨 SOS sent. Nearby hospitals notified.', 'success');
+      }
+    }
+  </script>
+</body>
+</html>

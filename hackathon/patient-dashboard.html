@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CUREVA • Patient Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html { height: 100%; font-family: Arial, sans-serif; overflow: hidden; }
+
+    /* Background Video */
+    .bg-video {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
+
+    /* Overlay */
+    .overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.2);
+      z-index: 0;
+    }
+
+    /* App container */
+    .app {
+      position: relative;
+      z-index: 1;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 40px;
+      color: white;
+    }
+
+    /* Topbar */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.1);
+      padding: 15px 20px;
+      border-radius: 15px;
+      backdrop-filter: blur(6px);
+    }
+    .brand h1 { font-size: 20px; font-weight: bold; }
+    .nav { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tab {
+      background: transparent;
+      border: 2px solid white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      color: white;
+      transition: 0.3s;
+    }
+    .tab.active, .tab:hover { background: white; color: black; }
+
+    /* Cards */
+    .card {
+      background: rgba(255,255,255,0.15);
+      padding: 20px;
+      border-radius: 20px;
+      margin: 20px 0;
+      backdrop-filter: blur(6px);
+    }
+    h2, h3 { margin-bottom: 10px; }
+    p, label { color: #f0f0f0; }
+
+    /* Buttons */
+    .btn {
+      background: transparent;
+      border: 2px solid white;
+      padding: 10px 25px;
+      font-size: 16px;
+      color: white;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      letter-spacing: 1px;
+      margin: 5px;
+    }
+    .btn:hover { background: white; color: black; transform: scale(1.05); }
+    .btn.secondary { border-color: #bbb; color: #ddd; }
+
+    /* Inputs */
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0;
+      border-radius: 12px;
+      border: none;
+      outline: none;
+    }
+
+    /* Sections */
+    section { display: none; }
+    section.active { display: block; }
+
+    /* Toast notifications */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 10px;
+      z-index: 1000;
+      display: none;
+    }
+
+    /* Doctor list */
+    .doctor-item {
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Symptom buttons */
+    .symptom-btn {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid white;
+      padding: 8px 15px;
+      margin: 5px;
+      border-radius: 20px;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 14px;
+    }
+    .symptom-btn:hover {
+      background: white;
+      color: black;
+    }
+    
+    /* Symptom categories */
+    .symptom-category {
+      margin-bottom: 25px;
+    }
+    .symptom-category h3 {
+      color: #fff;
+      margin-bottom: 15px;
+      font-size: 18px;
+      border-bottom: 2px solid rgba(255,255,255,0.3);
+      padding-bottom: 8px;
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <iframe src="cureva.html" class="bg-iframe"></iframe>
+
+  <style>
+    .bg-iframe {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      z-index: -1;
+    }
+  </style>
+  <div class="overlay"></div>
+
+  <!-- Emergency SOS Button - Always Visible -->
+  <div id="sosButton" style="
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    background: #ff4444;
+    border: 2px solid #fff;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(255, 68, 68, 0.4);
+    transition: all 0.3s ease;
+    animation: pulse 2s infinite;
+  " onclick="showEmergencyAlert()">
+    🚨 SOS 🚨
+  </div>
+
+  <style>
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    #sosButton:hover {
+      background: #ff0000;
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(255, 68, 68, 0.6);
+    }
+  </style>
+
+  <!-- Toast notifications -->
+  <div id="toast" class="toast"></div>
+
+  <div class="app">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="brand"><h1>CUREVA • Patient</h1></div>
+      <div class="nav">
+        <button class="tab active" data-tab="home">Home</button>
+        <button class="tab" data-tab="profile">My Profile</button>
+        <button class="tab" data-tab="diseases">Diseases Form</button>
+        <button class="tab" data-tab="appointment">Appointment</button>
+        <button class="tab" data-tab="doctors">My Doctors</button>
+        <button class="tab" data-tab="documents">Documents</button>
+        <button class="tab" data-tab="emergency">Emergency</button>
+        <button class="tab" data-tab="about">About Us</button>
+        <button class="btn secondary" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <!-- Sections -->
+    <section id="home" class="active">
+      <div class="card">
+        <h2>Welcome, <span id="patientName">Patient</span>!</h2>
+        <p>Use the tabs to manage your profile, book an appointment, fill the diseases form, or learn about Cureva.</p>
+      </div>
+      <div class="card">
+        <h3>Quick Actions</h3>
+        <button class="btn" onclick="showTab('appointment')">Book Appointment</button>
+        <button class="btn" onclick="showTab('diseases')">Report Symptoms</button>
+        <button class="btn" onclick="showTab('profile')">Update Profile</button>
+      </div>
+    </section>
+
+    <section id="profile">
+      <div class="card">
+        <h2>My Profile</h2>
+        <div id="profileLoading" class="loading">Loading profile...</div>
+        <div id="profileForm" style="display: none;">
+          <label>Full name</label>
+          <input id="profileName" placeholder="Your name" readonly>
+          <label>Age</label>
+          <input type="number" id="profileAge" placeholder="Age">
+          <label>Gender</label>
+          <select id="profileGender">
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+          
+          <h3>Location</h3>
+          <label>Address</label>
+          <input id="profileAddress" placeholder="Your address">
+          <label>City</label>
+          <input id="profileCity" placeholder="Your city">
+          <label>State</label>
+          <input id="profileState" placeholder="Your state">
+          <button class="btn" onclick="getCurrentLocation()">Use Current Location</button>
+          
+          <h3>Emergency Contact</h3>
+          <label>Emergency Contact Name</label>
+          <input id="emergencyName" placeholder="Emergency contact name">
+          <label>Emergency Contact Phone</label>
+          <input id="emergencyPhone" placeholder="Emergency contact phone">
+          <label>Relationship</label>
+          <input id="emergencyRelationship" placeholder="Relationship to you">
+          
+          <button class="btn" onclick="updateProfile()">Save Changes</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="emergency">
+      <div class="card">
+        <h2>Emergency SOS</h2>
+        <p>In case of emergency, press the SOS button to notify nearby hospitals.</p>
+        
+        <div style="text-align: center; margin: 20px 0;">
+          <button id="sosButton" class="btn" style="background: #ff4444; border-color: #ff4444; font-size: 24px; padding: 20px 40px;" onclick="sendSOS()">
+            🚨 SOS EMERGENCY 🚨
+          </button>
+        </div>
+        
+        <div id="sosStatus" style="display: none;">
+          <h3>Emergency Status</h3>
+          <div id="sosDetails"></div>
+        </div>
+        
+        <div id="emergencyHistory" style="display: none;">
+          <h3>Emergency History</h3>
+          <div id="emergencyList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="diseases">
+      <div class="card">
+        <h2>Common Symptoms Form</h2>
+        <p>Select your symptoms and we'll recommend the right doctor for you.</p>
+        
+        <div class="symptom-category">
+          <h3>Cardiovascular Symptoms:</h3>
+          <button class="symptom-btn" onclick="addSymptom('chest pain')">Chest Pain</button>
+          <button class="symptom-btn" onclick="addSymptom('shortness of breath')">Shortness of Breath</button>
+        </div>
+
+        <div class="symptom-category">
+          <h3>General Symptoms:</h3>
+          <button class="symptom-btn" onclick="addSymptom('fever')">Fever</button>
+          <button class="symptom-btn" onclick="addSymptom('cold')">Cold</button>
+          <button class="symptom-btn" onclick="addSymptom('cough')">Cough</button>
+          <button class="symptom-btn" onclick="addSymptom('headache')">Headache</button>
+          <button class="symptom-btn" onclick="addSymptom('weakness')">Weakness</button>
+          <button class="symptom-btn" onclick="addSymptom('flu')">Flu</button>
+        </div>
+
+        <div class="symptom-category">
+          <h3>Skin Symptoms:</h3>
+          <button class="symptom-btn" onclick="addSymptom('skin')">Skin Issues</button>
+          <button class="symptom-btn" onclick="addSymptom('rash')">Rash</button>
+          <button class="symptom-btn" onclick="addSymptom('acne')">Acne</button>
+          <button class="symptom-btn" onclick="addSymptom('itch')">Itching</button>
+        </div>
+
+        <div class="symptom-category">
+          <h3>Dental Symptoms:</h3>
+          <button class="symptom-btn" onclick="addSymptom('tooth')">Tooth Issues</button>
+          <button class="symptom-btn" onclick="addSymptom('toothache')">Toothache</button>
+          <button class="symptom-btn" onclick="addSymptom('gum')">Gum Problems</button>
+          <button class="symptom-btn" onclick="addSymptom('cavity')">Cavity</button>
+        </div>
+
+        <div class="symptom-category">
+          <h3>Eye Symptoms:</h3>
+          <button class="symptom-btn" onclick="addSymptom('eye')">Eye Issues</button>
+          <button class="symptom-btn" onclick="addSymptom('blurry vision')">Blurry Vision</button>
+          <button class="symptom-btn" onclick="addSymptom('red eye')">Red Eye</button>
+          <button class="symptom-btn" onclick="addSymptom('eye pain')">Eye Pain</button>
+        </div>
+
+        <div class="symptom-category">
+          <h3>Bone & Joint Symptoms:</h3>
+          <button class="symptom-btn" onclick="addSymptom('back pain')">Back Pain</button>
+          <button class="symptom-btn" onclick="addSymptom('knee pain')">Knee Pain</button>
+          <button class="symptom-btn" onclick="addSymptom('joint')">Joint Issues</button>
+          <button class="symptom-btn" onclick="addSymptom('sprain')">Sprain</button>
+          <button class="symptom-btn" onclick="addSymptom('fracture')">Fracture</button>
+        </div>
+
+
+
+        <label>Describe your symptoms in detail:</label>
+        <textarea id="symptomsText" placeholder="Describe your symptoms, pain level, duration, etc..."></textarea>
+        
+        <label>City (optional):</label>
+        <input id="symptomsCity" placeholder="Enter your city">
+        
+        <button class="btn" onclick="analyzeSymptoms()">Find Recommended Doctors</button>
+        
+        <div id="recommendations" style="display: none;">
+          <h3>Recommended Doctors:</h3>
+          <div id="doctorsList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="appointment">
+      <div class="card">
+        <h2>Book an Appointment</h2>
+        <label>Select Doctor</label>
+        <select id="appointmentDoctor">
+          <option value="">Select Doctor</option>
+        </select>
+        <label>Date</label>
+        <input type="date" id="appointmentDate">
+        <label>Time</label>
+        <input type="time" id="appointmentTime">
+        <label>Notes (optional)</label>
+        <textarea id="appointmentNotes" placeholder="Describe your issue..."></textarea>
+        <button class="btn" onclick="bookAppointment()">Book Appointment</button>
+      </div>
+
+      <div class="card">
+        <h2>My Appointments</h2>
+        <div id="appointmentsLoading" class="loading">Loading appointments...</div>
+        <div id="appointmentsList"></div>
+      </div>
+    </section>
+
+    <section id="doctors">
+      <div class="card">
+        <h2>Doctors Attached to You</h2>
+        <div id="attachedDoctorsLoading" class="loading">Loading doctors...</div>
+        <div id="attachedDoctorsList"></div>
+      </div>
+    </section>
+
+    <section id="documents">
+      <div class="card">
+        <h2>Upload Medical Reports</h2>
+        <input type="file" id="reportFile" accept=".pdf,.jpg,.jpeg,.png,.gif">
+        <button class="btn" onclick="uploadReport()">Upload Report</button>
+        
+        <div id="reportsList">
+          <h3>Your Reports:</h3>
+          <div id="reportsLoading" class="loading">Loading reports...</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about">
+      <div class="card">
+        <h2>About Cureva</h2>
+        <p>Bridging Tech With Treatment. At Cureva, we believe that healthcare should be accessible, secure, and trustworthy for everyone.</p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Global variables
+    let patientData = null;
+    let doctorsList = [];
+
+    // Check authentication on page load
+    window.onload = function() {
+      checkAuth();
+      loadProfile();
+      loadAppointments();
+      loadAttachedDoctors();
+      loadReports();
+    };
+
+    // Authentication check
+    function checkAuth() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = 'patient-login.html';
+        return;
+      }
+      
+      const patient = JSON.parse(localStorage.getItem('patient') || '{}');
+      if (patient.name) {
+        document.getElementById('patientName').textContent = patient.name;
+      }
+    }
+
+    // Show toast notification
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.style.display = 'block';
+      toast.style.background = type === 'error' ? 'rgba(255,0,0,0.8)' : 'rgba(0,0,0,0.8)';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3000);
+    }
+
+    // Load patient profile
+    async function loadProfile() {
+      try {
+        const response = await fetch('http://localhost:5000/api/patients/me', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          patientData = data.data;
+          
+          document.getElementById('profileLoading').style.display = 'none';
+          document.getElementById('profileForm').style.display = 'block';
+          
+          document.getElementById('profileName').value = patientData.user.name;
+          document.getElementById('profileAge').value = patientData.age || '';
+          document.getElementById('profileGender').value = patientData.gender || '';
+          document.getElementById('profileAddress').value = patientData.address || '';
+          document.getElementById('profileCity').value = patientData.city || '';
+          document.getElementById('profileState').value = patientData.state || '';
+          document.getElementById('emergencyName').value = patientData.emergencyContact?.name || '';
+          document.getElementById('emergencyPhone').value = patientData.emergencyContact?.phone || '';
+          document.getElementById('emergencyRelationship').value = patientData.emergencyContact?.relationship || '';
+        } else {
+          showToast('Failed to load profile', 'error');
+        }
+      } catch (error) {
+        showToast('Error loading profile', 'error');
+      }
+    }
+
+    // Update profile
+    async function updateProfile() {
+      const age = document.getElementById('profileAge').value;
+      const gender = document.getElementById('profileGender').value;
+      const address = document.getElementById('profileAddress').value;
+      const city = document.getElementById('profileCity').value;
+      const state = document.getElementById('profileState').value;
+      const emergencyName = document.getElementById('emergencyName').value;
+      const emergencyPhone = document.getElementById('emergencyPhone').value;
+      const emergencyRelationship = document.getElementById('emergencyRelationship').value;
+      
+      try {
+        const response = await fetch('http://localhost:5000/api/patients/me', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({
+            age, gender, address, city, state,
+            emergencyContact: {
+              name: emergencyName,
+              phone: emergencyPhone,
+              relationship: emergencyRelationship
+            }
+          })
+        });
+        
+        if (response.ok) {
+          showToast('Profile updated successfully');
+          loadProfile();
+        } else {
+          const data = await response.json();
+          showToast(data.error?.message || 'Failed to update profile', 'error');
+        }
+      } catch (error) {
+        showToast('Error updating profile', 'error');
+      }
+    }
+
+    // Get current location
+    function getCurrentLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            document.getElementById('profileAddress').value = `Latitude: ${latitude}, Longitude: ${longitude}`;
+            document.getElementById('profileCity').value = 'Current Location';
+            document.getElementById('profileState').value = 'Current Location';
+            showToast('Current location set successfully.');
+          },
+          (error) => {
+            showToast('Error getting current location: ' + error.message, 'error');
+          }
+        );
+      } else {
+        showToast('Geolocation is not supported by your browser.', 'error');
+      }
+    }
+
+    // Send SOS emergency
+    async function sendSOS() {
+      if (!patientData) {
+        showToast('Please update your profile with location first', 'error');
+        return;
+      }
+
+      if (!patientData.location || !patientData.location.latitude) {
+        showToast('Please set your location first', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:5000/api/emergency/sos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({
+            patientId: patientData._id,
+            latitude: patientData.location.latitude,
+            longitude: patientData.location.longitude,
+            address: patientData.location.address,
+            description: 'Emergency SOS triggered by patient', // Keep this for backend consistency
+            severity: 'High'
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          showToast('SOS sent successfully! Nearby hospitals have been notified.');
+          document.getElementById('sosStatus').style.display = 'block';
+          document.getElementById('sosDetails').innerHTML = `
+            <p><strong>Status:</strong> ${data.data.emergency.status}</p>
+            <p><strong>Nearby Hospitals:</strong> ${data.data.nearbyHospitals}</p>
+            <p><strong>Description:</strong> ${data.data.emergency.description}</p>
+          `;
+          loadEmergencyHistory();
+        } else {
+          const errorData = await response.json();
+          showToast(errorData.error?.message || 'Failed to send SOS', 'error');
+        }
+      } catch (error) {
+        showToast('Error sending SOS', 'error');
+      }
+    }
+
+    // Load emergency history
+    async function loadEmergencyHistory() {
+      if (!patientData) return;
+
+      try {
+        const response = await fetch(`http://localhost:5000/api/emergency/patient/${patientData._id}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.data.length > 0) {
+            document.getElementById('emergencyHistory').style.display = 'block';
+            displayEmergencyHistory(data.data);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading emergency history:', error);
+      }
+    }
+
+    // Display emergency history
+    function displayEmergencyHistory(emergencies) {
+      const container = document.getElementById('emergencyList');
+      container.innerHTML = emergencies.map(emergency => `
+        <div class="doctor-item">
+          <div>
+            <strong>Emergency on ${new Date(emergency.createdAt).toLocaleString()}</strong><br>
+            <small>Status: ${emergency.status}</small><br>
+            <small>Description: ${emergency.description}</small>
+            ${emergency.acceptedBy?.hospital ? `<br><small>Accepted by: ${emergency.acceptedBy.hospital.name}</small>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Add symptom to text
+    function addSymptom(symptom) {
+      const textarea = document.getElementById('symptomsText');
+      const currentText = textarea.value;
+      textarea.value = currentText ? currentText + ', ' + symptom : symptom;
+    }
+
+    // Analyze symptoms and get recommendations
+    async function analyzeSymptoms() {
+      const symptoms = document.getElementById('symptomsText').value;
+      const city = document.getElementById('symptomsCity').value;
+      
+      if (!symptoms) {
+        showToast('Please describe your symptoms', 'error');
+        return;
+      }
+      
+      // Determine specialty based on symptoms
+      const specialty = determineSpecialty(symptoms);
+      
+      try {
+        // Search for hospital doctors based on specialty and city
+        const response = await fetch(`http://localhost:5000/api/hospital-doctors?specialty=${encodeURIComponent(specialty)}&city=${encodeURIComponent(city)}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          doctorsList = data.data.doctors;
+          
+          displayDoctors(data.data.doctors, specialty);
+          showToast(`Found ${data.data.count} doctors in ${specialty}`);
+        } else {
+          const errorData = await response.json();
+          showToast(errorData.error?.message || 'Failed to get recommendations', 'error');
+        }
+      } catch (error) {
+        showToast('Error getting recommendations', 'error');
+      }
+    }
+
+    // Determine specialty based on symptoms
+    function determineSpecialty(symptoms) {
+      const lowerSymptoms = symptoms.toLowerCase();
+      
+      if (lowerSymptoms.includes('chest pain') || lowerSymptoms.includes('shortness of breath')) {
+        return 'Cardiologist';
+      } else if (lowerSymptoms.includes('fever') || lowerSymptoms.includes('cold') || lowerSymptoms.includes('cough') || lowerSymptoms.includes('headache') || lowerSymptoms.includes('weakness') || lowerSymptoms.includes('flu')) {
+        return 'General Physician';
+      } else if (lowerSymptoms.includes('skin') || lowerSymptoms.includes('rash') || lowerSymptoms.includes('acne') || lowerSymptoms.includes('itch')) {
+        return 'Dermatologist';
+      } else if (lowerSymptoms.includes('tooth') || lowerSymptoms.includes('toothache') || lowerSymptoms.includes('gum') || lowerSymptoms.includes('cavity')) {
+        return 'Dentist';
+      } else if (lowerSymptoms.includes('eye') || lowerSymptoms.includes('blurry vision') || lowerSymptoms.includes('red eye') || lowerSymptoms.includes('eye pain')) {
+        return 'Ophthalmologist';
+      } else if (lowerSymptoms.includes('back pain') || lowerSymptoms.includes('knee pain') || lowerSymptoms.includes('joint') || lowerSymptoms.includes('sprain') || lowerSymptoms.includes('fracture')) {
+        return 'Orthopedic';
+      } else {
+        return 'General Physician'; // Default fallback
+      }
+    }
+
+    // Display recommended doctors
+    function displayDoctors(doctors, specialty) {
+      const container = document.getElementById('doctorsList');
+      const recommendations = document.getElementById('recommendations');
+      
+      if (doctors.length === 0) {
+        container.innerHTML = '<p>No doctors found for your symptoms.</p>';
+      } else {
+        container.innerHTML = doctors.map(doctor => `
+          <div class="doctor-item">
+            <div>
+              <strong>${doctor.name}</strong><br>
+              <small>${doctor.specialty} • ${doctor.experience} years experience</small><br>
+              <small>🏥 ${doctor.hospital.name} • ${doctor.city}, ${doctor.state}</small>
+              ${doctor.qualifications ? `<br><small>${doctor.qualifications}</small>` : ''}
+            </div>
+            <button class="btn" onclick="selectDoctor('${doctor._id}', '${doctor.name}', '${doctor.hospital.name}')">Book</button>
+          </div>
+        `).join('');
+      }
+      
+      recommendations.style.display = 'block';
+    }
+
+    // Select doctor for appointment
+    function selectDoctor(doctorId, doctorName, hospitalName) {
+      document.getElementById('appointmentDoctor').innerHTML = `
+        <option value="${doctorId}">${doctorName} - ${hospitalName}</option>
+      `;
+      showTab('appointment');
+      showToast(`Selected ${doctorName} from ${hospitalName} for appointment`);
+    }
+
+    // Book appointment
+    async function bookAppointment() {
+      const doctorId = document.getElementById('appointmentDoctor').value;
+      const date = document.getElementById('appointmentDate').value;
+      const time = document.getElementById('appointmentTime').value;
+      const notes = document.getElementById('appointmentNotes').value;
+      
+      if (!doctorId || !date || !time) {
+        showToast('Please select doctor, date and time', 'error');
+        return;
+      }
+      
+      // Combine date and time into a single datetime string
+      const dateTimeString = `${date}T${time}`;
+      
+      try {
+        const response = await fetch('http://localhost:5000/api/hospital-appointments', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({
+            hospitalDoctorId: doctorId,
+            date: dateTimeString,
+            time,
+            notes
+          })
+        });
+        
+        if (response.ok) {
+          showToast('Appointment booked successfully');
+          document.getElementById('appointmentDoctor').value = '';
+          document.getElementById('appointmentDate').value = '';
+          document.getElementById('appointmentTime').value = '';
+          document.getElementById('appointmentNotes').value = '';
+          loadAppointments();
+        } else {
+          const data = await response.json();
+          showToast(data.error?.message || 'Failed to book appointment', 'error');
+        }
+      } catch (error) {
+        showToast('Error booking appointment', 'error');
+      }
+    }
+
+    // Load appointments
+    async function loadAppointments() {
+      try {
+        const response = await fetch('http://localhost:5000/api/hospital-appointments/patient', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          displayAppointments(data.data.appointments);
+        } else {
+          showToast('Failed to load appointments', 'error');
+        }
+      } catch (error) {
+        showToast('Error loading appointments', 'error');
+      }
+    }
+
+    // Display appointments
+    function displayAppointments(appointments) {
+      const container = document.getElementById('appointmentsList');
+      const loading = document.getElementById('appointmentsLoading');
+      
+      loading.style.display = 'none';
+      
+      if (appointments.length === 0) {
+        container.innerHTML = '<p>No appointments found.</p>';
+      } else {
+        container.innerHTML = appointments.map(appointment => `
+          <div class="doctor-item">
+            <div>
+              <strong>Dr. ${appointment.hospitalDoctor.name}</strong><br>
+              <small>${appointment.hospitalDoctor.specialty} • ${appointment.hospital.name}</small><br>
+              <small>${new Date(appointment.date).toLocaleDateString()} at ${appointment.time} • ${appointment.status}</small>
+              ${appointment.notes ? `<br><small>Notes: ${appointment.notes}</small>` : ''}
+            </div>
+            <div>
+              ${appointment.status === 'pending' ? 
+                `<button class="btn danger" onclick="cancelAppointment('${appointment._id}')">Cancel</button>` : 
+                ''
+              }
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+        // Cancel appointment
+    async function cancelAppointment(appointmentId) {
+      if (!confirm('Are you sure you want to cancel this appointment?')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`http://localhost:5000/api/hospital-appointments/${appointmentId}/cancel`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (response.ok) {
+          showToast('Appointment cancelled successfully');
+          loadAppointments();
+        } else {
+          const data = await response.json();
+          showToast(data.error?.message || 'Failed to cancel appointment', 'error');
+        }
+      } catch (error) {
+        showToast('Error cancelling appointment', 'error');
+      }
+    }
+
+    // Load attached doctors
+    async function loadAttachedDoctors() {
+      try {
+        const response = await fetch('http://localhost:5000/api/patients/me/doctors', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          displayAttachedDoctors(data.data);
+        } else {
+          showToast('Failed to load doctors', 'error');
+        }
+      } catch (error) {
+        showToast('Error loading doctors', 'error');
+      }
+    }
+
+    // Display attached doctors
+    function displayAttachedDoctors(doctors) {
+      const container = document.getElementById('attachedDoctorsList');
+      const loading = document.getElementById('attachedDoctorsLoading');
+      
+      loading.style.display = 'none';
+      
+      if (doctors.length === 0) {
+        container.innerHTML = '<p>No doctors attached yet. Use the Diseases Form to get recommendations.</p>';
+      } else {
+        container.innerHTML = doctors.map(doctor => `
+          <div class="doctor-item">
+            <div>
+              <strong>${doctor.user.name}</strong><br>
+              <small>${doctor.specialty} • ${doctor.city}</small>
+            </div>
+            <button class="btn" onclick="selectDoctor('${doctor._id}', '${doctor.user.name}')">Book</button>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Upload report
+    async function uploadReport() {
+      const fileInput = document.getElementById('reportFile');
+      const file = fileInput.files[0];
+      
+      if (!file) {
+        showToast('Please select a file', 'error');
+        return;
+      }
+      
+      const formData = new FormData();
+      formData.append('report', file);
+      
+      try {
+        const response = await fetch('http://localhost:5000/api/documents/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: formData
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          showToast('Report uploaded successfully');
+          fileInput.value = '';
+          loadReports();
+        } else {
+          const errorData = await response.json();
+          showToast(errorData.error?.message || 'Failed to upload report', 'error');
+        }
+      } catch (error) {
+        showToast('Error uploading report', 'error');
+      }
+    }
+
+    // Load reports
+    async function loadReports() {
+      if (!patientData) return;
+      
+      try {
+        const response = await fetch(`http://localhost:5000/api/documents/patient/${patientData._id}/reports`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          displayReports(data.data.reports);
+        } else {
+          showToast('Failed to load reports', 'error');
+        }
+      } catch (error) {
+        showToast('Error loading reports', 'error');
+      }
+    }
+
+    // Display reports
+    function displayReports(reports) {
+      const container = document.getElementById('reportsList');
+      const loading = document.getElementById('reportsLoading');
+      
+      loading.style.display = 'none';
+      
+      if (reports.length === 0) {
+        container.innerHTML = '<h3>Your Reports:</h3><p>No reports uploaded yet.</p>';
+      } else {
+        container.innerHTML = `
+          <h3>Your Reports:</h3>
+          ${reports.map(report => `
+            <div class="doctor-item">
+              <div>
+                <strong>Report uploaded on ${new Date(report.uploadedAt).toLocaleDateString()}</strong><br>
+                <small>Analysis: ${report.analysis || '—'}</small>
+                ${report.file ? `<br><a href="${report.file}" target="_blank" style="color:#aef;">View file</a>` : ''}
+              </div>
+            </div>
+          `).join('')}
+        `;
+      }
+    }
+
+    // Show specific tab
+    function showTab(tabName) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+      
+      document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+      document.getElementById(tabName).classList.add('active');
+    }
+
+    // Logout
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('patient');
+      window.location.href = 'patient-login.html';
+    }
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+  </script>
+
+  <script>
+    // Emergency SOS Function for Global Button
+    let sosClickCount = 0;
+    let sosClickTimer = null;
+
+    function showEmergencyAlert() {
+      sosClickCount++;
+      
+      // Clear previous timer
+      if (sosClickTimer) {
+        clearTimeout(sosClickTimer);
+      }
+      
+      // Set timer to reset click count after 3 seconds
+      sosClickTimer = setTimeout(() => {
+        sosClickCount = 0;
+      }, 3000);
+      
+      // Check if 5 clicks reached
+      if (sosClickCount >= 5) {
+        // Reset click count
+        sosClickCount = 0;
+        if (sosClickTimer) {
+          clearTimeout(sosClickTimer);
+        }
+        
+        // Trigger emergency immediately
+        triggerEmergency();
+      }
+      // No intermediate alerts - just count clicks silently
+    }
+
+    function triggerEmergency() {
+      // Direct emergency trigger - no description needed
+      // Here you could also send the emergency to a backend service
+      console.log('Emergency SOS triggered - Hospitals notified immediately');
+      if (typeof showToast === 'function') {
+        showToast('🚨 SOS sent. Nearby hospitals notified.', 'success');
+      }
+    }
+  </script>
+</body>
+</html>
