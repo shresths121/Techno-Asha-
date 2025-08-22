@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # MediTrust Backend
 
 A secure healthcare platform backend built with Node.js, Express, and MongoDB that connects patients with doctors through AI-powered symptom analysis and appointment management.
@@ -185,3 +186,7 @@ This project is licensed under the MIT License.
 ## Support
 
 For support and questions, please open an issue in the repository.
+=======
+# Cureva 
+Techno Asha-Cureva - A healthcare platform that bridges tech with treatment and helps people to get easy access to medical facilities.
+>>>>>>> 178852a43feb78cfe7818ca921c90eb770351571
