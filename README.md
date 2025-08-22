@@ -282,7 +282,8 @@ Seamless sync of Cureva records with the National Digital Health Mission databas
  Doctor Dashboard:
  <img width="1919" height="906" alt="Screenshot 2025-08-22 104824" src="https://github.com/user-attachments/assets/33477498-1ce0-48d9-bc50-0bee4c979eb2" />
 
+https://drive.google.com/file/d/1F_cychjUaB8o9_SIEWTf-_cn6wEE0gGW/view?usp=sharing
+
 # Cureva 
 Techno Asha-Cureva - A healthcare platform that bridges tech with treatment and helps people to get easy access to medical facilities.
->>>>>>> 178852a43feb78cfe7818ca921c90eb770351571
-[A Secure AI-powered Platform for Smart Patient-Doctor Interaction_compressed.pdf](https://github.com/user-attachments/files/21931227/A.Secure.AI-powered.Platform.for.Smart.Patient-Doctor.Interaction_compressed.pdf)
+ 
